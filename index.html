@@ -1,0 +1,396 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="SuperDataman: data engineering and AI consulting by Amir Vitman. Snowflake, dbt, semantic layers and AI agents.">
+<meta property="og:title" content="SuperDataman · Amir Vitman">
+<meta property="og:description" content="A senior data engineer, from the first pipeline to AI agents.">
+<meta property="og:image" content="logo-full.png">
+<title>SuperDataman</title>
+<link rel="icon" href="logo-mark.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single narrow column (~1040px), left-aligned editorial rhythm; one pipeline strip as the signature moment */
+:root{
+  --bg:#F3F6FA; --surface:#FFFFFF; --ink:#13233F; --muted:#56657C; --line:#DCE3EC;
+  --accent:#0F7F96; --accent-ink:#FFFFFF; --signal:#0F7F96; --tint:#E4F1F5;
+  --brand:#1C3358; --on-brand:#F3F6FA; --star:#4BC9DD;
+  --logo-light:block; --logo-dark:none; --logo-cell:#FFFFFF;
+  --f-display:"Manrope","Helvetica Neue",Arial,sans-serif;
+  --f-body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0E151D; --surface:#152030; --ink:#E7EDF4; --muted:#93A3B6; --line:#243245;
+  --accent:#4BC9DD; --accent-ink:#0B1420; --signal:#7FDCEB; --tint:#16293A;
+  --brand:#1C3358; --on-brand:#F3F6FA; --star:#4BC9DD;
+  --logo-light:none; --logo-dark:block; --logo-cell:#F3F6FA; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0E151D; --surface:#152030; --ink:#E7EDF4; --muted:#93A3B6; --line:#243245;
+  --accent:#4BC9DD; --accent-ink:#0B1420; --signal:#7FDCEB; --tint:#16293A;
+  --brand:#1C3358; --on-brand:#F3F6FA; --star:#4BC9DD;
+  --logo-light:none; --logo-dark:block; --logo-cell:#F3F6FA; color-scheme:dark}
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:17px;line-height:1.6;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+.wrap{max-width:1040px;margin:0 auto}
+a{color:var(--accent)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:4px}
+h1,h2,h3{font-family:var(--f-display);text-wrap:balance;margin:0;line-height:1.2;letter-spacing:-.01em;padding-bottom:.08em}
+h2{font-size:clamp(28px,4vw,38px);font-weight:800}
+h3{font-size:20px;font-weight:700}
+p{margin:0}
+.eyebrow{font-family:var(--f-mono);font-size:13px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+section{padding-block:72px;border-top:1px solid var(--line)}
+.sec-head{display:grid;gap:10px;margin-bottom:36px;max-width:640px}
+.sec-head p{color:var(--muted)}
+
+/* nav */
+nav{display:flex;justify-content:space-between;align-items:center;padding-block:22px;gap:16px;flex-wrap:wrap}
+.brand{display:block;line-height:0}
+.brand img{height:36px;width:auto}
+.brand .l{display:var(--logo-light)} .brand .d{display:var(--logo-dark)}
+.navlinks{display:flex;gap:22px;font-size:15px;flex-wrap:wrap}
+.navlinks a{color:var(--muted);text-decoration:none}
+.navlinks a:hover{color:var(--ink)}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;gap:8px;font:600 16px/1 var(--f-body);padding:14px 22px;border-radius:999px;text-decoration:none;border:1px solid transparent;cursor:pointer;transition:transform .15s ease}
+.btn:hover{transform:translateY(-1px)}
+.btn-primary{background:var(--accent);color:var(--accent-ink)}
+.btn-ghost{border-color:var(--line);color:var(--ink);background:var(--surface)}
+
+/* hero */
+.hero{display:grid;grid-template-columns:minmax(0,1fr) 290px;grid-template-areas:"head photo" "body body";column-gap:56px;row-gap:8px;align-items:center;padding-block:48px 80px}
+.hero-head{grid-area:head;min-width:0}
+.hero-body{grid-area:body;min-width:0}
+.hero .photo{grid-area:photo}
+.hero h1{font-size:clamp(36px,5vw,56px);font-weight:800;letter-spacing:-.02em;line-height:1.18;padding-bottom:.08em;overflow:visible}
+.hero h1 em{font-style:normal;color:var(--accent)}
+.hero .lede{font-size:19px;color:var(--muted);max-width:720px;margin-top:18px}
+.hero .ctas{display:flex;gap:12px;flex-wrap:wrap;margin-top:32px}
+.hero .who{margin-top:28px;font-family:var(--f-mono);font-size:14px;color:var(--muted)}
+.photo{position:relative;width:100%;max-width:290px;justify-self:end;aspect-ratio:1;border-radius:50%;padding:5px;background:var(--accent);box-shadow:0 0 0 6px color-mix(in srgb,var(--accent) 18%,transparent),0 0 36px color-mix(in srgb,var(--accent) 35%,transparent)}
+.photo img{display:block;width:100%;height:100%;object-fit:cover;object-position:50% 40%;border-radius:50%;border:4px solid var(--bg)}
+.dot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--star);margin-right:6px;vertical-align:1px}
+
+/* logos */
+.logos{padding-block:40px}
+.logos .row{display:flex;flex-wrap:wrap;gap:16px 48px;align-items:center;margin-top:18px}
+.logos .row{display:flex;flex-wrap:wrap;justify-content:center;gap:12px}
+.logo-cell{flex:1 1 128px;max-width:160px;height:84px;display:grid;place-items:center;background:var(--logo-cell);border:1px solid var(--line);border-radius:14px;padding:14px}
+.logo-cell{text-decoration:none;transition:border-color .2s,transform .2s,box-shadow .2s}
+.logo-cell:hover{border-color:var(--accent);transform:translateY(-2px);box-shadow:0 6px 18px rgba(19,35,63,.08)}
+.logo-cell img{display:block;max-width:100%;width:auto;height:var(--h,30px);object-fit:contain}
+.logo-cell img.tile{border-radius:10px}
+@media (max-width:600px){.logo-cell{flex-basis:40%;height:76px}}
+
+/* pipeline */
+.pipe{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:20px;overflow:hidden;background:var(--surface)}
+.stage{padding:26px 22px 28px;position:relative;display:grid;gap:10px;align-content:start;min-width:0}
+.stage+.stage{border-left:1px solid var(--line)}
+.stage .n{font-family:var(--f-mono);font-size:13px;color:var(--accent)}
+.stage p{font-size:15px;color:var(--muted)}
+.stage .tools{font-family:var(--f-mono);font-size:12.5px;color:var(--ink);background:var(--tint);border-radius:8px;padding:8px 10px;margin-top:6px;line-height:1.5}
+.stage+.stage::before{content:"→";position:absolute;left:-12px;top:24px;width:24px;height:24px;border-radius:50%;background:var(--bg);border:1px solid var(--line);display:grid;place-items:center;font-size:13px;color:var(--muted);z-index:1}
+.stage:last-child{background:linear-gradient(180deg,var(--tint),transparent 80%)}
+.stage:last-child .n{color:var(--signal)}
+
+
+/* stack */
+.stack{display:grid;border-top:1px solid var(--line)}
+.srow{display:grid;grid-template-columns:200px 1fr;gap:20px;padding-block:18px;border-bottom:1px solid var(--line);align-items:start}
+.slabel{font-family:var(--f-mono);font-size:12.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);padding-top:9px}
+.chips-lg{list-style:none;margin:0;padding:0;display:flex;flex-wrap:wrap;gap:8px;min-width:0}
+.chips-lg li{display:inline-flex;align-items:center;gap:8px;padding:7px 13px 7px 10px;border:1px solid var(--line);border-radius:999px;background:var(--surface);font-size:15px;font-weight:500;color:var(--ink)}
+.chips-lg svg{width:18px;height:18px;flex:none}
+.chips-lg .mono{min-width:18px;height:18px;padding:0 3px;border-radius:5px;background:var(--tint);color:var(--accent);font:600 9.5px/18px var(--f-mono);text-align:center;letter-spacing:.02em}
+.chips-lg.plain li{background:transparent;padding:7px 13px;border-style:dashed}
+@media (max-width:600px){.srow{grid-template-columns:1fr;gap:10px}.slabel{padding-top:0}}
+
+/* ways */
+.ways{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.way{border:1px solid var(--line);border-radius:18px;padding:26px;background:var(--surface);display:grid;gap:10px;align-content:start}
+.way .fit{font-family:var(--f-mono);font-size:12.5px;color:var(--muted)}
+.way p{color:var(--muted);font-size:16px}
+
+/* work */
+.work{list-style:none;margin:0;padding:0;display:grid}
+.work li{display:grid;grid-template-columns:170px 1fr;gap:24px;padding-block:24px;border-bottom:1px solid var(--line)}
+.work li:first-child{border-top:1px solid var(--line)}
+.work .co{font-family:var(--f-mono);font-size:13.5px;color:var(--accent);padding-top:3px}
+.work .body{display:grid;gap:8px;min-width:0}
+.work .body p{color:var(--muted);font-size:16px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chips span{font-family:var(--f-mono);font-size:12px;border:1px solid var(--line);border-radius:999px;padding:3px 10px;color:var(--muted)}
+.work a.listen{font-size:15px;font-weight:500}
+
+/* about */
+.about{display:grid;grid-template-columns:1fr 1.6fr;gap:48px}
+.about .text{display:grid;gap:16px;max-width:620px}
+.about .facts{display:grid;gap:14px;font-size:15px;align-content:start}
+.about .facts div{display:grid;grid-template-columns:110px 1fr;gap:12px;border-bottom:1px solid var(--line);padding-bottom:12px}
+.about .facts dt,.about .facts .k{font-family:var(--f-mono);font-size:12.5px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;padding-top:2px}
+
+/* contact */
+.contact{background:var(--brand);color:var(--on-brand);border-radius:28px;padding:48px clamp(22px,5vw,56px);margin-block:72px 40px;display:grid;grid-template-columns:1.1fr 1fr;gap:40px;border-top:none}
+.contact h2{color:var(--on-brand)}
+.contact .mark{width:64px;height:64px;border-radius:16px;margin-bottom:22px;box-shadow:0 0 0 1px color-mix(in srgb,var(--on-brand) 18%,transparent)}
+.contact .lede{color:color-mix(in srgb,var(--on-brand) 72%,transparent);margin-top:14px;max-width:420px}
+.clist{display:grid;gap:12px;align-content:start}
+.citem{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 16px;border-radius:14px;background:color-mix(in srgb,var(--on-brand) 8%,transparent);border:1px solid color-mix(in srgb,var(--on-brand) 14%,transparent);flex-wrap:wrap}
+.citem .k{font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:color-mix(in srgb,var(--on-brand) 60%,transparent)}
+.citem .v{font-size:17px;font-weight:500;user-select:all;word-break:break-all}
+.citem .acts{display:flex;gap:8px}
+.mini{font:500 13px/1 var(--f-body);padding:9px 12px;border-radius:999px;border:1px solid color-mix(in srgb,var(--on-brand) 30%,transparent);background:transparent;color:var(--on-brand);text-decoration:none;cursor:pointer;white-space:nowrap}
+.mini.solid{background:var(--on-brand);color:var(--brand);border-color:var(--on-brand)}
+footer{padding-block:24px 48px;font-size:14px;color:var(--muted);display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+@media (max-width:860px){
+  .hero{grid-template-columns:1fr;grid-template-areas:"photo" "head" "body";row-gap:24px;padding-block:24px 56px}
+  .photo{justify-self:start;max-width:180px}
+  .pipe{grid-template-columns:1fr 1fr}
+  .stage:nth-child(3){border-left:none}
+  .stage:nth-child(n+3){border-top:1px solid var(--line)}
+  .stage:nth-child(3)::before{display:none}
+  .about,.contact{grid-template-columns:1fr}
+}
+@media (max-width:600px){
+  .navlinks{display:none}
+  .pipe{grid-template-columns:1fr}
+  .stage+.stage{border-left:none;border-top:1px solid var(--line)}
+  .stage+.stage::before{display:grid;content:"↓";left:22px;top:-12px}
+  .ways{grid-template-columns:1fr}
+  .work li{grid-template-columns:1fr;gap:6px}
+  section{padding-block:56px}
+}
+@media (prefers-reduced-motion:reduce){.btn,.logo-cell{transition:none}.logo-cell:hover{transform:none}.btn:hover{transform:none}}
+</style>
+<style>*{box-sizing:border-box}body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <a class="brand" href="#top" aria-label="SuperDataman home"><img class="l" src="logo-light.png" alt="SuperDataman" width="855" height="192"><img class="d" src="logo-dark.png" alt="SuperDataman" width="855" height="192"></a>
+    <div class="navlinks">
+      <a href="#build">What I build</a>
+      <a href="#stack">Stack</a>
+      <a href="#work">Work</a>
+      <a href="#ways">Work with me</a>
+      <a href="#about">About</a>
+    </div>
+    <a class="btn btn-primary" href="#contact">Let’s talk</a>
+  </nav>
+
+  <header class="hero" id="top">
+    <div class="hero-head">
+      <p class="eyebrow">Data engineering &amp; AI consulting</p>
+      <h1 style="margin-top:14px">A senior data engineer, <em>from the first pipeline to AI agents.</em></h1>
+    </div>
+    <div class="photo">
+      <img src="amir.jpg" alt="Amir Vitman" width="480" height="480">
+    </div>
+    <div class="hero-body">
+      <p class="lede">I help startups and enterprises design, build and run their data stack, end to end. You get reliable data, trusted metrics, and answers your team can actually use.</p>
+      <div class="ctas">
+        <a class="btn btn-primary" href="#contact">Let’s talk</a>
+        <a class="btn btn-ghost" href="#work">See selected work</a>
+      </div>
+      <p class="who">Amir Vitman · 10+ years in data · Israel, working with teams anywhere</p>
+    </div>
+  </header>
+</div>
+
+<div class="wrap">
+  <section class="logos" aria-label="Companies I've worked with">
+    <p class="eyebrow">Companies I’ve built data for</p>
+    <div class="row"><a class="logo-cell" href="https://www.wavebl.com" target="_blank" rel="noopener" title="Visit WaveBL"><img src="c-wavebl.svg" alt="WaveBL" style="--h:24px" loading="lazy"></a><a class="logo-cell" href="https://www.telit.com" target="_blank" rel="noopener" title="Visit Telit Cinterion"><img src="c-telit.png" alt="Telit Cinterion" style="--h:40px" loading="lazy"></a><a class="logo-cell" href="https://www.loora.com" target="_blank" rel="noopener" title="Visit Loora"><img src="c-loora.svg" alt="Loora" style="--h:28px" loading="lazy"></a><a class="logo-cell" href="https://www.lemonade.com" target="_blank" rel="noopener" title="Visit Lemonade"><img src="c-lemonade.png" alt="Lemonade" style="--h:46px" class="tile" loading="lazy"></a><a class="logo-cell" href="https://cellebrite.com" target="_blank" rel="noopener" title="Visit Cellebrite"><img src="c-cellebrite.svg" alt="Cellebrite" style="--h:30px" loading="lazy"></a><a class="logo-cell" href="https://www.eldan.co.il" target="_blank" rel="noopener" title="Visit Eldan"><img src="c-eldan.png" alt="Eldan" style="--h:46px" class="tile" loading="lazy"></a><a class="logo-cell" href="https://www.naya-college.co.il" target="_blank" rel="noopener" title="Visit Naya College"><img src="c-naya.jpg" alt="Naya College" style="--h:42px" loading="lazy"></a></div>
+  </section>
+
+  <section id="build">
+    <div class="sec-head">
+      <p class="eyebrow">What I build</p>
+      <h2>One pipeline, from source systems to answers.</h2>
+    </div>
+    <div class="pipe">
+      <div class="stage">
+        <span class="n">01 · Ingest</span>
+        <h3>Get the data in</h3>
+        <p>Product, billing, CRM and marketing sources landed reliably, with tests and alerts.</p>
+        <div class="tools">Airbyte · Fivetran · Airflow · Python</div>
+      </div>
+      <div class="stage">
+        <span class="n">02 · Model</span>
+        <h3>Make it make sense</h3>
+        <p>A layered dbt project on Snowflake with clear, documented business logic.</p>
+        <div class="tools">dbt · Snowflake · SQL</div>
+      </div>
+      <div class="stage">
+        <span class="n">03 · Semantic layer</span>
+        <h3>Define metrics once</h3>
+        <p>ARR, NRR, CAC, LTV agreed with Finance and GTM, and defined in one place.</p>
+        <div class="tools">Snowflake Semantic Views</div>
+      </div>
+      <div class="stage">
+        <span class="n">04 · AI agents</span>
+        <h3>Let people ask</h3>
+        <p>Agents that answer business questions in natural language, on governed data.</p>
+        <div class="tools">Cortex · CoWork · Claude · ChatGPT</div>
+      </div>
+    </div>
+  </section>
+
+
+  <section id="stack">
+    <div class="sec-head">
+      <p class="eyebrow">Tech stack</p>
+      <h2>Tools I’ve used in production.</h2>
+      <p>These are the tools I’ve built and run real systems on over the last 10+ years.</p>
+    </div>
+    <div class="stack"><div class="srow"><span class="slabel">Warehouse & Streaming</span><ul class="chips-lg"><li><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#29B5E8" d="M24 3.459c0 .646-.418 1.18-1.141 1.18-.723 0-1.142-.534-1.142-1.18 0-.647.419-1.18 1.142-1.18.723 0 1.141.533 1.141 1.18zm-.228 0c0-.533-.38-.951-.913-.951s-.913.38-.913.95c0 .533.38.952.913.952.57 0 .913-.419.913-.951zm-1.37-.533h.495c.266 0 .456.152.456.38 0 .153-.076.229-.19.305l.19.266v.038h-.266l-.19-.266h-.229v.266h-.266zm.495.228h-.229v.267h.229c.114 0 .152-.038.152-.114.038-.077-.038-.153-.152-.153zM7.602 12.4c.038-.151.076-.304.076-.456 0-.114-.038-.228-.038-.342-.114-.343-.304-.647-.646-.838l-4.87-2.777c-.685-.38-1.56-.152-1.94.533-.381.685-.153 1.56.532 1.94l2.701 1.56-2.701 1.56c-.685.38-.913 1.256-.533 1.94.38.685 1.256.914 1.94.533l4.832-2.777c.343-.267.571-.533.647-.876zm1.332 2.626c-.266-.038-.57.038-.837.19l-4.832 2.777c-.685.38-.913 1.256-.532 1.94.38.686 1.255.914 1.94.533l2.701-1.56v3.12c0 .8.647 1.408 1.446 1.408.799 0 1.407-.647 1.407-1.408v-5.592c0-.761-.57-1.37-1.293-1.408zm4.946-6.088c.266.038.57-.038.837-.19l4.832-2.777c.685-.38.913-1.256.532-1.94-.38-.686-1.255-.914-1.94-.533l-2.701 1.56V1.975c0-.799-.647-1.408-1.446-1.408-.799 0-1.446.609-1.446 1.408V7.53c0 .76.609 1.37 1.332 1.407zM3.265 5.97l4.832 2.777c.266.152.533.19.837.19.723-.038 1.331-.684 1.331-1.407V1.975c0-.799-.646-1.408-1.407-1.408-.799 0-1.446.647-1.446 1.408v3.12l-2.701-1.56c-.685-.38-1.56-.152-1.94.533-.419.646-.19 1.521.494 1.902zm9.093 6.011a.412.412 0 00-.114-.266l-.57-.571a.346.346 0 00-.267-.114.412.412 0 00-.266.114l-.571.57a.411.411 0 00-.114.267c0 .076.038.19.114.267l.57.57a.345.345 0 00.267.114c.076 0 .19-.038.266-.114l.571-.57a.412.412 0 00.114-.267zm1.598.533L11.94 14.53c-.039.038-.153.114-.229.114h-.608a.411.411 0 01-.267-.114L8.82 12.514a.408.408 0 01-.076-.229v-.608c0-.076.038-.19.114-.267l2.016-2.016a.41.41 0 01.267-.114h.608a.41.41 0 01.267.114l2.016 2.016a.347.347 0 01.114.267v.608c-.076.077-.114.19-.19.229zm5.593 5.44l-4.832-2.777c-.266-.152-.57-.19-.837-.152-.723.038-1.332.684-1.332 1.408v5.554c0 .8.647 1.408 1.408 1.408.799 0 1.446-.647 1.446-1.408v-3.12l2.7 1.56c.686.38 1.561.152 1.941-.533.419-.646.19-1.521-.494-1.94zm2.549-7.533l-2.701 1.56 2.7 1.56c.686.38.914 1.256.533 1.94-.38.685-1.255.913-1.94.533l-4.832-2.778a1.644 1.644 0 01-.647-.798c-.037-.153-.076-.305-.076-.457 0-.114.039-.228.039-.342.114-.343.342-.647.646-.837l4.832-2.778c.685-.38 1.56-.152 1.94.533.457.609.19 1.484-.494 1.864"/></svg>Snowflake</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#FF3621" d="M.95 14.184L12 20.403l9.919-5.55v2.21L12 22.662l-10.484-5.96-.565.308v.77L12 24l11.05-6.218v-4.317l-.515-.309L12 19.118l-9.867-5.653v-2.21L12 16.805l11.05-6.218V6.32l-.515-.308L12 11.974 2.647 6.681 12 1.388l7.76 4.368.668-.411v-.566L12 0 .95 6.27v.72L12 13.207l9.919-5.55v2.26L12 15.52 1.516 9.56l-.565.308Z"/></svg>Databricks</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#669DF6" d="M5.676 10.595h2.052v5.244a5.892 5.892 0 0 1-2.052-2.088v-3.156zm18.179 10.836a.504.504 0 0 1 0 .708l-1.716 1.716a.504.504 0 0 1-.708 0l-4.248-4.248a.206.206 0 0 1-.007-.007c-.02-.02-.028-.045-.043-.066a10.736 10.736 0 0 1-6.334 2.065C4.835 21.599 0 16.764 0 10.799S4.835 0 10.8 0s10.799 4.835 10.799 10.8c0 2.369-.772 4.553-2.066 6.333.025.017.052.028.074.05l4.248 4.248zm-5.028-10.632a8.015 8.015 0 1 0-8.028 8.028h.024a8.016 8.016 0 0 0 8.004-8.028zm-4.86 4.98a6.002 6.002 0 0 0 2.04-2.184v-1.764h-2.04v3.948zm-4.5.948c.442.057.887.08 1.332.072.4.025.8.025 1.2 0V7.692H9.468v9.035z"/></svg>BigQuery</li><li><svg viewBox="0 0 80 88" shape-rendering="crispEdges" aria-hidden="true"><rect x="30" y="2" width="2" height="1" fill="#1E528B"/><rect x="32" y="2" width="16" height="84" fill="#2869AC"/><rect x="48" y="2" width="2" height="1" fill="#498BC6"/><rect x="28" y="3" width="4" height="1" fill="#1E528B"/><rect x="48" y="3" width="4" height="1" fill="#498BC6"/><rect x="26" y="4" width="6" height="1" fill="#1E528B"/><rect x="48" y="4" width="6" height="1" fill="#498BC6"/><rect x="24" y="5" width="8" height="1" fill="#1E528B"/><rect x="48" y="5" width="8" height="1" fill="#498BC6"/><rect x="22" y="6" width="10" height="1" fill="#1E528B"/><rect x="48" y="6" width="10" height="1" fill="#498BC6"/><rect x="20" y="7" width="12" height="1" fill="#1E528B"/><rect x="48" y="7" width="12" height="1" fill="#498BC6"/><rect x="19" y="8" width="13" height="8" fill="#1E528B"/><rect x="48" y="8" width="13" height="8" fill="#498BC6"/><rect x="6" y="14" width="1" height="1" fill="#1E528B"/><rect x="7" y="14" width="1" height="60" fill="#2869AC"/><rect x="8" y="14" width="4" height="1" fill="#498BC6"/><rect x="68" y="14" width="4" height="1" fill="#1E528B"/><rect x="72" y="14" width="1" height="60" fill="#2869AC"/><rect x="73" y="14" width="1" height="1" fill="#498BC6"/><rect x="4" y="15" width="3" height="1" fill="#1E528B"/><rect x="8" y="15" width="8" height="1" fill="#498BC6"/><rect x="64" y="15" width="8" height="1" fill="#1E528B"/><rect x="73" y="15" width="3" height="1" fill="#498BC6"/><rect x="2" y="16" width="5" height="1" fill="#1E528B"/><rect x="8" y="16" width="11" height="56" fill="#498BC6"/><rect x="19" y="16" width="1" height="56" fill="#2869AC"/><rect x="20" y="16" width="12" height="56" fill="#1E528B"/><rect x="48" y="16" width="12" height="55" fill="#498BC6"/><rect x="60" y="16" width="1" height="55" fill="#2869AC"/><rect x="61" y="16" width="11" height="56" fill="#1E528B"/><rect x="73" y="16" width="5" height="1" fill="#498BC6"/><rect x="1" y="17" width="6" height="54" fill="#1E528B"/><rect x="73" y="17" width="6" height="54" fill="#498BC6"/><rect x="2" y="71" width="5" height="1" fill="#1E528B"/><rect x="48" y="71" width="13" height="9" fill="#498BC6"/><rect x="73" y="71" width="5" height="1" fill="#498BC6"/><rect x="4" y="72" width="3" height="1" fill="#1E528B"/><rect x="8" y="72" width="7" height="1" fill="#498BC6"/><rect x="19" y="72" width="13" height="8" fill="#1E528B"/><rect x="65" y="72" width="7" height="1" fill="#1E528B"/><rect x="73" y="72" width="3" height="1" fill="#498BC6"/><rect x="6" y="73" width="1" height="1" fill="#1E528B"/><rect x="8" y="73" width="3" height="1" fill="#498BC6"/><rect x="69" y="73" width="3" height="1" fill="#1E528B"/><rect x="73" y="73" width="1" height="1" fill="#498BC6"/><rect x="20" y="80" width="12" height="1" fill="#1E528B"/><rect x="48" y="80" width="12" height="1" fill="#498BC6"/><rect x="22" y="81" width="10" height="1" fill="#1E528B"/><rect x="48" y="81" width="10" height="1" fill="#498BC6"/><rect x="24" y="82" width="8" height="1" fill="#1E528B"/><rect x="48" y="82" width="8" height="1" fill="#498BC6"/><rect x="26" y="83" width="6" height="1" fill="#1E528B"/><rect x="48" y="83" width="6" height="1" fill="#498BC6"/><rect x="28" y="84" width="4" height="1" fill="#1E528B"/><rect x="48" y="84" width="4" height="1" fill="#498BC6"/><rect x="30" y="85" width="2" height="1" fill="#1E528B"/><rect x="48" y="85" width="2" height="1" fill="#498BC6"/></svg>Redshift</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M9.71 2.136a1.43 1.43 0 0 0-2.047 0h-.007a1.48 1.48 0 0 0-.421 1.042c0 .41.161.777.422 1.039l.007.007c.257.264.616.426 1.019.426.404 0 .766-.162 1.027-.426l.003-.007c.261-.262.421-.629.421-1.039 0-.408-.159-.777-.421-1.042H9.71zM8.683 22.295c.404 0 .766-.167 1.027-.429l.003-.008c.261-.261.421-.631.421-1.036 0-.41-.159-.778-.421-1.044H9.71a1.42 1.42 0 0 0-1.027-.432 1.4 1.4 0 0 0-1.02.432h-.007c-.26.266-.422.634-.422 1.044 0 .406.161.775.422 1.036l.007.008c.258.262.617.429 1.02.429zm7.89-4.462c.359-.096.683-.33.882-.684l.027-.052a1.47 1.47 0 0 0 .114-1.067 1.454 1.454 0 0 0-.675-.896l-.021-.014a1.425 1.425 0 0 0-1.078-.132c-.36.091-.684.335-.881.686-.2.349-.241.75-.146 1.119.099.363.33.691.675.896h.002c.346.203.737.239 1.101.144zm-6.405-7.342a2.083 2.083 0 0 0-1.485-.627c-.58 0-1.103.242-1.482.627-.378.385-.612.916-.612 1.507s.233 1.124.612 1.514a2.08 2.08 0 0 0 2.967 0c.379-.39.612-.923.612-1.514s-.233-1.122-.612-1.507zm-.835-2.51c.843.141 1.6.552 2.178 1.144h.004c.092.093.182.196.265.299l1.446-.851a3.176 3.176 0 0 1-.047-1.808 3.149 3.149 0 0 1 1.456-1.926l.025-.016a3.062 3.062 0 0 1 2.345-.306c.77.21 1.465.721 1.898 1.482v.002c.431.757.518 1.626.313 2.408a3.145 3.145 0 0 1-1.456 1.928l-.198.118h-.02a3.095 3.095 0 0 1-2.154.201 3.127 3.127 0 0 1-1.514-.944l-1.444.848a4.162 4.162 0 0 1 0 2.879l1.444.846c.413-.47.939-.789 1.514-.944a3.041 3.041 0 0 1 2.371.319l.048.023v.002a3.17 3.17 0 0 1 1.408 1.906 3.215 3.215 0 0 1-.313 2.405l-.026.053-.003-.005a3.147 3.147 0 0 1-1.867 1.436 3.096 3.096 0 0 1-2.371-.318v-.006a3.156 3.156 0 0 1-1.456-1.927 3.175 3.175 0 0 1 .047-1.805l-1.446-.848a3.905 3.905 0 0 1-.265.294l-.004.005a3.938 3.938 0 0 1-2.178 1.138v1.699a3.09 3.09 0 0 1 1.56.862l.002.004c.565.572.914 1.368.914 2.243 0 .873-.35 1.664-.914 2.239l-.002.009a3.1 3.1 0 0 1-2.21.931 3.1 3.1 0 0 1-2.206-.93h-.002v-.009a3.186 3.186 0 0 1-.916-2.239c0-.875.35-1.672.916-2.243v-.004h.002a3.1 3.1 0 0 1 1.558-.862v-1.699a3.926 3.926 0 0 1-2.176-1.138l-.006-.005a4.098 4.098 0 0 1-1.173-2.874c0-1.122.452-2.136 1.173-2.872h.006a3.947 3.947 0 0 1 2.176-1.144V6.289a3.137 3.137 0 0 1-1.558-.864h-.002v-.004a3.192 3.192 0 0 1-.916-2.243c0-.871.35-1.669.916-2.243l.002-.002A3.084 3.084 0 0 1 8.683 0c.861 0 1.641.355 2.21.932v.002h.002c.565.574.914 1.372.914 2.243 0 .876-.35 1.667-.914 2.243l-.002.005a3.142 3.142 0 0 1-1.56.864v1.692zm8.121-1.129l-.012-.019a1.452 1.452 0 0 0-.87-.668 1.43 1.43 0 0 0-1.103.146h.002c-.347.2-.58.529-.677.896-.095.365-.054.768.146 1.119l.007.009c.2.347.519.579.874.673.357.103.755.059 1.098-.144l.019-.009a1.47 1.47 0 0 0 .657-.885 1.493 1.493 0 0 0-.141-1.118"/></svg>Kafka</li></ul></div><div class="srow"><span class="slabel">Cloud</span><ul class="chips-lg"><li><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M6.763 10.036c0 .296.032.535.088.71.064.176.144.368.256.576.04.063.056.127.056.183 0 .08-.048.16-.152.24l-.503.335a.383.383 0 0 1-.208.072c-.08 0-.16-.04-.239-.112a2.47 2.47 0 0 1-.287-.375 6.18 6.18 0 0 1-.248-.471c-.622.734-1.405 1.101-2.347 1.101-.67 0-1.205-.191-1.596-.574-.391-.384-.59-.894-.59-1.533 0-.678.239-1.23.726-1.644.487-.415 1.133-.623 1.955-.623.272 0 .551.024.846.064.296.04.6.104.918.176v-.583c0-.607-.127-1.03-.375-1.277-.255-.248-.686-.367-1.3-.367-.28 0-.568.031-.863.103-.295.072-.583.16-.862.272a2.287 2.287 0 0 1-.28.104.488.488 0 0 1-.127.023c-.112 0-.168-.08-.168-.247v-.391c0-.128.016-.224.056-.28a.597.597 0 0 1 .224-.167c.279-.144.614-.264 1.005-.36a4.84 4.84 0 0 1 1.246-.151c.95 0 1.644.216 2.091.647.439.43.662 1.085.662 1.963v2.586zm-3.24 1.214c.263 0 .534-.048.822-.144.287-.096.543-.271.758-.51.128-.152.224-.32.272-.512.047-.191.08-.423.08-.694v-.335a6.66 6.66 0 0 0-.735-.136 6.02 6.02 0 0 0-.75-.048c-.535 0-.926.104-1.19.32-.263.215-.39.518-.39.917 0 .375.095.655.295.846.191.2.47.296.838.296zm6.41.862c-.144 0-.24-.024-.304-.08-.064-.048-.12-.16-.168-.311L7.586 5.55a1.398 1.398 0 0 1-.072-.32c0-.128.064-.2.191-.2h.783c.151 0 .255.025.31.08.065.048.113.16.16.312l1.342 5.284 1.245-5.284c.04-.16.088-.264.151-.312a.549.549 0 0 1 .32-.08h.638c.152 0 .256.025.32.08.063.048.12.16.151.312l1.261 5.348 1.381-5.348c.048-.16.104-.264.16-.312a.52.52 0 0 1 .311-.08h.743c.127 0 .2.065.2.2 0 .04-.009.08-.017.128a1.137 1.137 0 0 1-.056.2l-1.923 6.17c-.048.16-.104.263-.168.311a.51.51 0 0 1-.303.08h-.687c-.151 0-.255-.024-.32-.08-.063-.056-.119-.16-.15-.32l-1.238-5.148-1.23 5.14c-.04.16-.087.264-.15.32-.065.056-.177.08-.32.08zm10.256.215c-.415 0-.83-.048-1.229-.143-.399-.096-.71-.2-.918-.32-.128-.071-.215-.151-.247-.223a.563.563 0 0 1-.048-.224v-.407c0-.167.064-.247.183-.247.048 0 .096.008.144.024.048.016.12.048.2.08.271.12.566.215.878.279.319.064.63.096.95.096.502 0 .894-.088 1.165-.264a.86.86 0 0 0 .415-.758.777.777 0 0 0-.215-.559c-.144-.151-.416-.287-.807-.415l-1.157-.36c-.583-.183-1.014-.454-1.277-.813a1.902 1.902 0 0 1-.4-1.158c0-.335.073-.63.216-.886.144-.255.335-.479.575-.654.24-.184.51-.32.83-.415.32-.096.655-.136 1.006-.136.175 0 .359.008.535.032.183.024.35.056.518.088.16.04.312.08.455.127.144.048.256.096.336.144a.69.69 0 0 1 .24.2.43.43 0 0 1 .071.263v.375c0 .168-.064.256-.184.256a.83.83 0 0 1-.303-.096 3.652 3.652 0 0 0-1.532-.311c-.455 0-.815.071-1.062.223-.248.152-.375.383-.375.71 0 .224.08.416.24.567.159.152.454.304.877.44l1.134.358c.574.184.99.44 1.237.767.247.327.367.702.367 1.117 0 .343-.072.655-.207.926-.144.272-.336.511-.583.703-.248.2-.543.343-.886.447-.36.111-.734.167-1.142.167z"/><path fill="#FF9900" d="M21.698 16.207c-2.626 1.94-6.442 2.969-9.722 2.969-4.598 0-8.74-1.7-11.87-4.526-.247-.223-.024-.527.272-.351 3.384 1.963 7.559 3.153 11.877 3.153 2.914 0 6.114-.607 9.06-1.852.439-.2.814.287.383.607zM22.792 14.961c-.336-.43-2.22-.207-3.074-.103-.255.032-.295-.192-.063-.36 1.5-1.053 3.967-.75 4.254-.399.287.36-.08 2.826-1.485 4.007-.215.184-.423.088-.327-.151.32-.79 1.03-2.57.695-2.994z"/></svg>AWS</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M12.19 2.38a9.344 9.344 0 0 0-9.234 6.893c.053-.02-.055.013 0 0-3.875 2.551-3.922 8.11-.247 10.941l.006-.007-.007.03a6.717 6.717 0 0 0 4.077 1.356h5.173l.03.03h5.192c6.687.053 9.376-8.605 3.835-12.35a9.365 9.365 0 0 0-2.821-4.552l-.043.043.006-.05A9.344 9.344 0 0 0 12.19 2.38zm-.358 4.146c1.244-.04 2.518.368 3.486 1.15a5.186 5.186 0 0 1 1.862 4.078v.518c3.53-.07 3.53 5.262 0 5.193h-5.193l-.008.009v-.04H6.785a2.59 2.59 0 0 1-1.067-.23h.001a2.597 2.597 0 1 1 3.437-3.437l3.013-3.012A6.747 6.747 0 0 0 8.11 8.24c.018-.01.04-.026.054-.023a5.186 5.186 0 0 1 3.67-1.69z"/></svg>GCP</li></ul></div><div class="srow"><span class="slabel">Ingest & orchestrate</span><ul class="chips-lg"><li><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#615EFF" d="M8.308 2.914C10.876.027 15.128-.819 18.624.848c4.644 2.21 6.339 7.846 3.809 12.194l-5.687 9.77c-.319.547-.842.944-1.455 1.107-.613.163-1.267.079-1.818-.236l6.887-11.832c1.835-3.155.608-7.243-2.758-8.854-2.528-1.208-5.613-.604-7.482 1.473-1.031 1.139-1.608 2.613-1.628 4.145-.018 1.532.524 3.019 1.524 4.185.179.21.372.406.579.588l-4.021 6.919c-.157.273-.365.51-.617.699-.249.189-.534.329-.838.411-.303.081-.621.1-.93.061-.313-.041-.614-.143-.885-.298l4.364-7.513C7.041 12.77 6.59 11.763 6.34 10.7l-2.675 4.612c-.317.545-.842.944-1.453 1.107-.615.164-1.269.079-1.818-.237L7.31 4.284c.29-.487.622-.948.998-1.37Zm7.983 3.784c1.666.956 2.242 3.081 1.277 4.734L10.936 22.81c-.317.547-.84.945-1.455 1.109-.612.162-1.268.079-1.816-.237l6.159-10.596c-.495-.1-.96-.308-1.365-.61-.405-.3-.743-.682-.981-1.122-.242-.441-.385-.928-.418-1.428-.033-.501.045-1.002.224-1.47.18-.468.462-.893.824-1.242.362-.35.795-.618 1.273-.784.474-.168.982-.23 1.485-.183.502.046.989.2 1.425.451Zm-2.412 2.139c-.114.087-.21.196-.282.32-.106.186-.158.398-.144.613.014.215.092.42.224.592.13.167.31.297.515.367.207.068.427.077.636.02.209-.056.396-.172.54-.334.143-.161.234-.36.263-.574.027-.213-.008-.43-.105-.622-.097-.195-.246-.354-.433-.46-.126-.072-.263-.118-.406-.136-.143-.02-.286-.01-.424.026-.14.038-.271.101-.384.188Z"/></svg>Airbyte</li><li><svg viewBox="0 0 23 32" aria-hidden="true"><g fill="#306BEA"><path d="M15.7 15.8H18.9C19.2 15.8 19.4 15.6 19.4 15.4C19.4 15.3 19.4 15.2 19.4 15.2L13.9 0.3C13.8 0.1 13.6 0 13.4 0H10.2C10.0 0 9.8 0.2 9.8 0.4C9.8 0.5 9.8 0.5 9.8 0.6L15.3 15.5C15.4 15.7 15.5 15.8 15.7 15.8Z"/><path d="M15.2 31.7H18.3C18.6 31.7 18.8 31.5 18.8 31.2C18.8 31.2 18.8 31.1 18.8 31.1L7.5 0.3C7.4 0.1 7.2 0 7.0 0H3.8C3.6 0 3.4 0.2 3.4 0.4C3.4 0.5 3.4 0.5 3.4 0.6L14.7 31.4C14.8 31.6 15.0 31.7 15.2 31.7Z"/><path d="M8.9 31.7H12.1C12.3 31.7 12.5 31.5 12.6 31.3C12.6 31.2 12.5 31.1 12.5 31.1L7.0 16.1C7.0 15.9 6.8 15.8 6.6 15.8H3.4C3.1 15.8 2.9 16.0 2.9 16.3C2.9 16.4 2.9 16.4 3.0 16.5L8.4 31.4C8.5 31.6 8.7 31.7 8.9 31.7Z"/><path d="M16.1 0.6L18.7 7.6C18.8 7.8 18.9 7.9 19.1 7.9H22.3C22.6 7.9 22.8 7.7 22.8 7.4C22.8 7.4 22.8 7.3 22.7 7.3L20.2 0.3C20.1 0.1 19.9 0 19.7 0H16.6C16.3 0 16.1 0.2 16.1 0.4C16.1 0.5 16.1 0.5 16.1 0.6Z"/><path d="M3.0 31.7H6.2C6.4 31.7 6.6 31.5 6.6 31.2C6.6 31.2 6.6 31.1 6.6 31.1L4.0 24.1C4.0 23.9 3.8 23.8 3.6 23.8H0.4C0.2 23.8 0 24.0 0 24.2C0 24.3 0 24.3 0 24.4L2.6 31.4C2.6 31.6 2.8 31.7 3.0 31.7Z"/></g></svg>Fivetran</li><li><svg viewBox="0 1 28 30" aria-hidden="true"><g fill="currentColor"><path d="M2.7,7.1l9.5,5.4L2.7,18Zm0,22.6V21.1l15,8.5h5.5L5.5,19.5l12.3-7L0,2.3V29.7Z"/><path d="M24.6,25l-9.5-5.4,9.5-5.4Zm0-22.6v8.5l-15-8.5H4L21.8,12.5l-12.3,7L27.3,29.7V2.3Z"/></g></svg>Rivery</li><li><svg viewBox="0 0 59 59" aria-hidden="true"><path transform="translate(-1306.6 -822.2)" fill="#017cee" d="M1307.5 880.8l28.1-28.8a.5.5 0 0 0 .063-.666c-1.7-2.3-4.8-2.8-6.0-4.4-3.4-4.7-4.3-7.4-5.8-7.2a.4.4 0 0 0-.271.1l-10.1 10.4c-5.8 6-6.7 19.2-6.8 30.3a.5.5 0 0 0 .949.3z"/><path transform="translate(-1346.8 -850.5)" fill="#00ad46" d="M1405.5 908.4l-28.8-28.1a.5.5 0 0 0-.667-.063c-2.3 1.7-2.8 4.8-4.4 6.0-4.7 3.4-7.4 4.3-7.2 5.8a.4.4 0 0 0 .143.2l10.4 10.1c6 5.8 19.2 6.7 30.3 6.8a.5.5 0 0 0 .387-.946z"/><path transform="translate(-1345.9 -850.2)" fill="#04d659" d="M1373.9 902.2c-3.2-3.2-4.8-9.5 1.4-22.5-10.2 4.5-13.8 10.5-12.0 12.2z"/><path transform="translate(-1375.2 -782.1)" fill="#00c7d4" d="M1433.1 782.3l-28.1 28.8a.5.5 0 0 0-.063.6c1.7 2.3 4.8 2.8 6.0 4.4 3.4 4.7 4.3 7.4 5.8 7.2a.4.4 0 0 0 .271-.143l10.1-10.4c5.8-6 6.7-19.2 6.8-30.3a.5.5 0 0 0-.95-.386z"/><path transform="translate(-1374.8 -850.2)" fill="#11e1ee" d="M1426.9 881.1c-3.2 3.2-9.5 4.8-22.5-1.4 4.5 10.2 10.5 13.8 12.2 12.0z"/><path transform="translate(-1306.7 -781.9)" fill="#e43921" d="M1307 782.9l28.8 28.1a.5.5 0 0 0 .666.0c2.3-1.7 2.8-4.8 4.4-6.0 4.7-3.4 7.4-4.3 7.2-5.8a.4.4 0 0 0-.143-.271l-10.4-10.1c-6-5.8-19.2-6.7-30.3-6.8a.5.5 0 0 0-.386.9z"/><path transform="translate(-1374.8 -797.8)" fill="#ff7557" d="M1405.8 804.7c3.2 3.2 4.8 9.5-1.4 22.5 10.2-4.5 13.8-10.5 12.0-12.2z"/><path transform="translate(-1322.5 -821.3)" fill="#0cb6ff" d="M1329.3 849.2c3.2-3.2 9.5-4.8 22.5 1.4-4.5-10.2-10.5-13.8-12.2-12.0z"/></svg>Airflow</li></ul></div><div class="srow"><span class="slabel">Transform & model</span><ul class="chips-lg"><li><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#FF694B" d="M17.9004 9.3763a8.1488 8.1488 0 0 0-3.0421-3.1206l1.7708.8385a10.2874 10.2874 0 0 1 3.74 3.0007l3.234-5.9295a2.8546 2.8546 0 0 0-.0611-2.9604C22.7566.0371 21.2112-.3409 19.9754.3327l-5.8749 3.2101a4.3612 4.3612 0 0 1-4.1761 0L4.1769.408a2.8545 2.8545 0 0 0-2.9592.0632c-1.1673.7853-1.5452 2.33-.8723 3.5655L3.55 9.9106a4.3612 4.3612 0 0 1 0 4.1772l-3.1272 5.743a2.86 2.86 0 0 0 .085 2.9974c.794 1.1438 2.3225 1.5054 3.5448.8385l6.0581-3.3049a10.2877 10.2877 0 0 1-3.0051-3.7454l-.8374-1.7708a8.148 8.148 0 0 0 3.1206 3.0421l10.5832 5.779c1.2213.666 2.7481.3055 3.5426-.8363a2.8699 2.8699 0 0 0 .0796-3.0018L17.9004 9.3763zm3.3801-7.7351c.6022 0 1.0904.4882 1.0904 1.0904s-.4882 1.0904-1.0904 1.0904-1.0904-.4882-1.0904-1.0904.4882-1.0904 1.0904-1.0904zM2.7442 3.822c-.6022 0-1.0904-.4882-1.0904-1.0904s.4882-1.0904 1.0904-1.0904 1.0904.4882 1.0904 1.0904S3.3464 3.822 2.7442 3.822zm0 18.5363c-.6022 0-1.0904-.4882-1.0904-1.0904 0-.6022.4882-1.0904 1.0904-1.0904s1.0904.4882 1.0904 1.0904c0 .6022-.4882 1.0904-1.0904 1.0904zm10.3585-11.4489c-1.2008-.0035-2.177.9672-2.1805 2.1679a2.1738 2.1738 0 0 0 .7052 1.6091c-1.4872-.2091-2.5234-1.5843-2.3142-3.0716.2091-1.4872 1.5843-2.5234 3.0716-2.3142a2.7194 2.7194 0 0 1 2.3142 2.3142 2.1623 2.1623 0 0 0-1.5963-.7054zm8.1778 11.4489c-.6022 0-1.0904-.4882-1.0904-1.0904 0-.6022.4882-1.0904 1.0904-1.0904s1.0904.4882 1.0904 1.0904c0 .6022-.4882 1.0904-1.0904 1.0904z"/></svg>dbt</li><li><span class="mono" aria-hidden="true">SQL</span>SQL</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#3776AB" d="M14.25.18l.9.2.73.26.59.3.45.32.34.34.25.34.16.33.1.3.04.26.02.2-.01.13V8.5l-.05.63-.13.55-.21.46-.26.38-.3.31-.33.25-.35.19-.35.14-.33.1-.3.07-.26.04-.21.02H8.77l-.69.05-.59.14-.5.22-.41.27-.33.32-.27.35-.2.36-.15.37-.1.35-.07.32-.04.27-.02.21v3.06H3.17l-.21-.03-.28-.07-.32-.12-.35-.18-.36-.26-.36-.36-.35-.46-.32-.59-.28-.73-.21-.88-.14-1.05-.05-1.23.06-1.22.16-1.04.24-.87.32-.71.36-.57.4-.44.42-.33.42-.24.4-.16.36-.1.32-.05.24-.01h.16l.06.01h8.16v-.83H6.18l-.01-2.75-.02-.37.05-.34.11-.31.17-.28.25-.26.31-.23.38-.2.44-.18.51-.15.58-.12.64-.1.71-.06.77-.04.84-.02 1.27.05zm-6.3 1.98l-.23.33-.08.41.08.41.23.34.33.22.41.09.41-.09.33-.22.23-.34.08-.41-.08-.41-.23-.33-.33-.22-.41-.09-.41.09zm13.09 3.95l.28.06.32.12.35.18.36.27.36.35.35.47.32.59.28.73.21.88.14 1.04.05 1.23-.06 1.23-.16 1.04-.24.86-.32.71-.36.57-.4.45-.42.33-.42.24-.4.16-.36.09-.32.05-.24.02-.16-.01h-8.22v.82h5.84l.01 2.76.02.36-.05.34-.11.31-.17.29-.25.25-.31.24-.38.2-.44.17-.51.15-.58.13-.64.09-.71.07-.77.04-.84.01-1.27-.04-1.07-.14-.9-.2-.73-.25-.59-.3-.45-.33-.34-.34-.25-.34-.16-.33-.1-.3-.04-.25-.02-.2.01-.13v-5.34l.05-.64.13-.54.21-.46.26-.38.3-.32.33-.24.35-.2.35-.14.33-.1.3-.06.26-.04.21-.02.13-.01h5.84l.69-.05.59-.14.5-.21.41-.28.33-.32.27-.35.2-.36.15-.36.1-.35.07-.32.04-.28.02-.21V6.07h2.09l.14.01zm-6.47 14.25l-.23.33-.08.41.08.41.23.33.33.23.41.08.41-.08.33-.23.23-.33.08-.41-.08-.41-.23-.33-.33-.23-.41-.08-.41.08z"/></svg>Python</li></ul></div><div class="srow"><span class="slabel">BI & data apps</span><ul class="chips-lg"><li><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#E97627" d="M11.654.174V2.377H9.682v.58h1.972V5.16h.696V2.957h1.97v-.58h-1.97V.174h-.348zm6.03 2.262l-.002 1.623v1.623h-2.957v.927h2.957v3.188H18.725l.011-1.582.02-1.576 1.465-.02 1.46-.01v-.927H18.728V2.436h-.522zm-12.407.06V5.686H2.291v.925H5.277V9.801h.985V6.61h3.013v-.925H6.262V2.496H5.77zm6.086 5.27v3.593H8.06v1.188h3.304v3.596h1.28v-3.596H15.953v-1.188H12.643V7.766h-.637zm9.721 1.55v2.221h-2.012v.811h2.012v2.261h.887v-2.261H24v-.811h-2.029V9.317h-.422zm-19.111.131V11.621H0v.621H1.973v2.194H2.64v-2.194h2v-.62H2.609V9.446h-.318zm15.709 4.516v3.254h-3.016v.927h3.016v3.217h1.072v-3.216H21.74v-.928H18.754v-3.254h-.533zm-12.463.008v3.246H2.262v.928h2.957v3.189H6.32v-3.189h2.955v-.928H6.32V13.97h-.55zm6.316 4.578l.002 1.103v1.1H9.566v.812h1.971v2.262h.928l.012-1.119.017-1.143H14.463v-.812h-2V18.549h-.465z"/></svg>Tableau</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M11.9475 0c-1.1598.0021-2.0982.944-2.096 2.1038a2.1 2.1 0 00.356 1.166l.895-.8959a.884.884 0 11.565.564l-.895.895c.9593.6478 2.2621.3953 2.91-.564.6478-.9593.3953-2.262-.564-2.91A2.096 2.096 0 0011.9475 0zm-.835 6.1128a3.2629 3.2629 0 00-.653-1.965l-1.164 1.162a1.667 1.667 0 01-.318 2.012l.632 1.5449a3.2819 3.2819 0 001.503-2.754zm-3.2499 1.666h-.03c-.9217.0009-1.6697-.7455-1.6707-1.6673-.001-.9217.7454-1.6697 1.6672-1.6707a1.669 1.669 0 01.9195.275l1.152-1.152c-1.4069-1.141-3.4724-.9257-4.6135.4811s-.9257 3.4723.481 4.6135a3.2799 3.2799 0 002.7275.6652l-.633-1.5439v-.001zm4.1279 1.3359c-.728 0-1.452.106-2.15.315l.922 2.2519c2.6872-.6819 5.4184.9438 6.1002 3.631.6818 2.6873-.9439 5.4184-3.6311 6.1002s-5.4184-.9439-6.1002-3.631c-.5682-2.2394.4655-4.5774 2.5041-5.6643l-.91-2.2449c-3.6908 1.808-5.2173 6.2657-3.4093 9.9567l.0005.001c1.808 3.6909 6.2657 5.2173 9.9567 3.4093l.001-.0005c3.6913-1.8071 5.2187-6.2645 3.4116-9.9558a7.4417 7.4417 0 00-6.6865-4.1696h-.008l-.001.001z"/></svg>Looker</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#009848" d="m23.7515 20.1367-3.13-2.6326c1.0862-1.7307 1.7303-3.7745 1.7303-5.9655 0-6.1684-5.008-11.1764-11.176-11.1764S0 5.3702 0 11.5386c0 6.168 5.008 11.176 11.1759 11.176 2.3934 0 4.6216-.7552 6.4443-2.0438l3.3324 2.7988s.4974.4236.921-.0738l1.9884-2.3568c-.0186 0 .3864-.4968-.1105-.9023zm-5.7078-8.598c0 3.7926-3.0747 6.8672-6.8678 6.8672-3.7926 0-6.8678-3.0746-6.8678-6.8673 0-3.793 3.0752-6.8678 6.8678-6.8678 3.7931 0 6.8678 3.0747 6.8678 6.8678zm-11.287 0c0-2.4304 1.9702-4.4006 4.4006-4.4006 2.4303 0 4.4005 1.9702 4.4005 4.4005 0 2.4304-1.9702 4.4006-4.4005 4.4006-2.4304 0-4.4005-1.9702-4.4005-4.4006z"/></svg>QlikSense</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><defs><linearGradient id="pbA" x1="11.6" y1="1" x2="21.3" y2="21.4" gradientUnits="userSpaceOnUse"><stop stop-color="#E6AD10"/><stop offset="1" stop-color="#C87E0E"/></linearGradient><linearGradient id="pbB" x1="8.3" y1="6.5" x2="16.4" y2="22.2" gradientUnits="userSpaceOnUse"><stop stop-color="#F6D751"/><stop offset="1" stop-color="#E6AD10"/></linearGradient><linearGradient id="pbC" x1="3.7" y1="12" x2="8.2" y2="22.6" gradientUnits="userSpaceOnUse"><stop stop-color="#F9E589"/><stop offset="1" stop-color="#F6D751"/></linearGradient></defs><path fill="url(#pbA)" d="M12.9 1.9C12.9 1.4 13.3 1 13.8 1H19.3C19.8 1 20.2 1.4 20.2 1.9V22.1C20.2 22.6 19.8 23 19.3 23H12.9Z"/><path fill="url(#pbB)" d="M15.6 7.4V23H8.3V6.5H14.7C15.2 6.5 15.6 6.9 15.6 7.4Z"/><path fill="url(#pbC)" d="M3.7 12.9C3.7 12.4 4.1 12 4.6 12H10.1C10.6 12 11 12.4 11 12.9V23H4.6C4.1 23 3.7 22.6 3.7 22.1Z"/></svg>Power BI</li><li><svg viewBox="0 0 48 48" aria-hidden="true"><rect width="48" height="48" rx="9" fill="#2A1A5E"/><path fill="#fff" d="M38.7 8.8H9.1V14.4H38.7Z"/><path fill="#fff" d="M38.7 16.2H27.5V21.7H38.7Z"/><path fill="#fff" d="M16.3 16.2H9.1V21.7H16.3C19 21.7 21.2 24 21.2 26.7V38.7H26.7V26.7C26.7 20.9 22 16.2 16.3 16.2Z"/><path fill="#fff" d="M33.1 29.8C30.6 29.8 28.5 31.9 28.5 34.4C28.5 37 30.6 39.1 33.1 39.1C35.7 39.1 37.7 37 37.7 34.4C37.7 31.9 35.7 29.8 33.1 29.8Z"/></svg>ThoughtSpot</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#FF4B4B" d="M16.673 11.32l6.862-3.618c.233-.136.554.12.442.387L20.463 17.1zm-8.556-.229l3.473-5.187c.203-.328.578-.316.793-.028l7.886 11.75zm-3.375 7.25c-.28 0-.835-.284-.993-.716l-3.72-9.46c-.118-.331.139-.614.48-.464l19.474 10.306c-.149.147-.453.337-.72.334z"/></svg>Streamlit</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#7856FF" d="M6.967 9.996h3.053c-.763-.477-1.048-1.145-1.431-2.384L7.443 3.366C6.919 1.458 6.49.551 4.39.551H.004v1.145h.621c1.286 0 1.431.477 1.814 1.908L3.44 7.326c.524 1.814 1.337 2.67 3.53 2.67h-.003Zm7.06 0h3.053c2.194 0 2.956-.86 3.484-2.67l1.001-3.722c.382-1.431.57-1.908 1.814-1.908H24V.551h-4.34c-2.146 0-2.576.86-3.053 2.815l-1.145 4.246c-.384 1.286-.673 1.907-1.435 2.384Zm-4.007 4.008h4.007V9.996H10.02v4.008ZM0 23.449h4.39c2.1 0 2.529-.907 3.053-2.815l1.146-4.246c.383-1.239.668-1.907 1.431-2.384H6.967c-2.194 0-3.007.86-3.531 2.67l-1.001 3.722c-.383 1.431-.524 1.907-1.814 1.907H0v1.146Zm19.65 0h4.343v-1.146h-.622c-1.239 0-1.431-.476-1.814-1.907l-1.001-3.722c-.524-1.814-1.286-2.67-3.483-2.67h-3.046c.762.477 1.041 1.098 1.424 2.384l1.145 4.246c.477 1.955.907 2.815 3.054 2.815Z"/></svg>Mixpanel</li></ul></div><div class="srow"><span class="slabel">AI & engineering</span><ul class="chips-lg"><li><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#D97757" d="m4.7144 15.9555 4.7174-2.6471.079-.2307-.079-.1275h-.2307l-.7893-.0486-2.6956-.0729-2.3375-.0971-2.2646-.1214-.5707-.1215-.5343-.7042.0546-.3522.4797-.3218.686.0608 1.5179.1032 2.2767.1578 1.6514.0972 2.4468.255h.3886l.0546-.1579-.1336-.0971-.1032-.0972L6.973 9.8356l-2.55-1.6879-1.3356-.9714-.7225-.4918-.3643-.4614-.1578-1.0078.6557-.7225.8803.0607.2246.0607.8925.686 1.9064 1.4754 2.4893 1.8336.3643.3035.1457-.1032.0182-.0728-.164-.2733-1.3539-2.4467-1.445-2.4893-.6435-1.032-.17-.6194c-.0607-.255-.1032-.4674-.1032-.7285L6.287.1335 6.6997 0l.9957.1336.419.3642.6192 1.4147 1.0018 2.2282 1.5543 3.0296.4553.8985.2429.8318.091.255h.1579v-.1457l.1275-1.706.2368-2.0947.2307-2.6957.0789-.7589.3764-.9107.7468-.4918.5828.2793.4797.686-.0668.4433-.2853 1.8517-.5586 2.9021-.3643 1.9429h.2125l.2429-.2429.9835-1.3053 1.6514-2.0643.7286-.8196.85-.9046.5464-.4311h1.0321l.759 1.1293-.34 1.1657-1.0625 1.3478-.8804 1.1414-1.2628 1.7-.7893 1.36.0729.1093.1882-.0183 2.8535-.607 1.5421-.2794 1.8396-.3157.8318.3886.091.3946-.3278.8075-1.967.4857-2.3072.4614-3.4364.8136-.0425.0304.0486.0607 1.5482.1457.6618.0364h1.621l3.0175.2247.7892.522.4736.6376-.079.4857-1.2142.6193-1.6393-.3886-3.825-.9107-1.3113-.3279h-.1822v.1093l1.0929 1.0686 2.0035 1.8092 2.5075 2.3314.1275.5768-.3218.4554-.34-.0486-2.2039-1.6575-.85-.7468-1.9246-1.621h-.1275v.17l.4432.6496 2.3436 3.5214.1214 1.0807-.17.3521-.6071.2125-.6679-.1214-1.3721-1.9246L14.38 17.959l-1.1414-1.9428-.1397.079-.674 7.2552-.3156.3703-.7286.2793-.6071-.4614-.3218-.7468.3218-1.4753.3886-1.9246.3157-1.53.2853-1.9004.17-.6314-.0121-.0425-.1397.0182-1.4328 1.9672-2.1796 2.9446-1.7243 1.8456-.4128.164-.7164-.3704.0667-.6618.4008-.5889 2.386-3.0357 1.4389-1.882.929-1.0868-.0062-.1579h-.0546l-6.3385 4.1164-1.1293.1457-.4857-.4554.0608-.7467.2307-.2429 1.9064-1.3114Z"/></svg>Claude Code</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M11.503.131 1.891 5.678a.84.84 0 0 0-.42.726v11.188c0 .3.162.575.42.724l9.609 5.55a1 1 0 0 0 .998 0l9.61-5.55a.84.84 0 0 0 .42-.724V6.404a.84.84 0 0 0-.42-.726L12.497.131a1.01 1.01 0 0 0-.996 0M2.657 6.338h18.55c.263 0 .43.287.297.515L12.23 22.918c-.062.107-.229.064-.229-.06V12.335a.59.59 0 0 0-.295-.51l-9.11-5.257c-.109-.063-.064-.23.061-.23"/></svg>Cursor</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>GitHub</li><li><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#2088FF" d="M10.984 13.836a.5.5 0 0 1-.353-.146l-.745-.743a.5.5 0 1 1 .706-.708l.392.391 1.181-1.18a.5.5 0 0 1 .708.707l-1.535 1.533a.504.504 0 0 1-.354.146zm9.353-.147l1.534-1.532a.5.5 0 0 0-.707-.707l-1.181 1.18-.392-.391a.5.5 0 1 0-.706.708l.746.743a.497.497 0 0 0 .706-.001zM4.527 7.452l2.557-1.585A1 1 0 0 0 7.09 4.17L4.533 2.56A1 1 0 0 0 3 3.406v3.196a1.001 1.001 0 0 0 1.527.85zm2.03-2.436L4 6.602V3.406l2.557 1.61zM24 12.5c0 1.93-1.57 3.5-3.5 3.5a3.503 3.503 0 0 1-3.46-3h-2.08a3.503 3.503 0 0 1-3.46 3 3.502 3.502 0 0 1-3.46-3h-.558c-.972 0-1.85-.399-2.482-1.042V17c0 1.654 1.346 3 3 3h.04c.244-1.693 1.7-3 3.46-3 1.93 0 3.5 1.57 3.5 3.5S13.43 24 11.5 24a3.502 3.502 0 0 1-3.46-3H8c-2.206 0-4-1.794-4-4V9.899A5.008 5.008 0 0 1 0 5c0-2.757 2.243-5 5-5s5 2.243 5 5a5.005 5.005 0 0 1-4.952 4.998A2.482 2.482 0 0 0 7.482 12h.558c.244-1.693 1.7-3 3.46-3a3.502 3.502 0 0 1 3.46 3h2.08a3.503 3.503 0 0 1 3.46-3c1.93 0 3.5 1.57 3.5 3.5zm-15 8c0 1.378 1.122 2.5 2.5 2.5s2.5-1.122 2.5-2.5-1.122-2.5-2.5-2.5S9 19.122 9 20.5zM5 9c2.206 0 4-1.794 4-4S7.206 1 5 1 1 2.794 1 5s1.794 4 4 4zm9 3.5c0-1.378-1.122-2.5-2.5-2.5S9 11.122 9 12.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5zm9 0c0-1.378-1.122-2.5-2.5-2.5S18 11.122 18 12.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5zm-13 8a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0zm2 0a.5.5 0 1 0 1 0 .5.5 0 0 0-1 0zm12 0c0 1.93-1.57 3.5-3.5 3.5a3.503 3.503 0 0 1-3.46-3.002c-.007.001-.013.005-.021.005l-.506.017h-.017a.5.5 0 0 1-.016-.999l.506-.017c.018-.002.035.006.052.007A3.503 3.503 0 0 1 20.5 17c1.93 0 3.5 1.57 3.5 3.5zm-1 0c0-1.378-1.122-2.5-2.5-2.5S18 19.122 18 20.5s1.122 2.5 2.5 2.5 2.5-1.122 2.5-2.5z"/></svg>CI/CD</li></ul></div><div class="srow"><span class="slabel">Practices</span><ul class="chips-lg plain"><li>Semantic layers</li><li>AI agents</li><li>MCP</li><li>Data modeling</li><li>Data warehousing</li><li>ETL / ELT</li></ul></div></div>
+  </section>
+
+  <section id="work">
+    <div class="sec-head">
+      <p class="eyebrow">Selected work</p>
+      <h2>Things I’ve built and run in production.</h2>
+    </div>
+    <ul class="work">
+      <li>
+        <span class="co">WaveBL</span>
+        <div class="body">
+          <h3>Cortex AI agents on Semantic Views, connected to ChatGPT</h3>
+          <p>Business users ask questions in ChatGPT and get answers from governed Snowflake data, through Cortex agents built on top of Semantic Views.</p>
+          <div class="chips"><span>Cortex</span><span>Semantic Views</span><span>Snowflake</span><span>ChatGPT</span></div>
+        </div>
+      </li>
+      <li>
+        <span class="co">Telit</span>
+        <div class="body">
+          <h3>Owning the dbt project and Snowflake stack</h3>
+          <p>End-to-end ownership of the dbt project and Snowflake, plus Semantic Views, Snowflake CoWork and Cortex for AI-assisted analytics.</p>
+          <div class="chips"><span>dbt</span><span>Snowflake</span><span>Semantic Views</span><span>CoWork</span><span>Cortex</span></div>
+        </div>
+      </li>
+      <li>
+        <span class="co">Loora</span>
+        <div class="body">
+          <h3>A data platform from scratch on Snowflake Iceberg</h3>
+          <p>Architected on S3 and Snowflake Iceberg with a medallion dbt project and Airbyte + Airflow ELT, unifying product, marketing and billing data.</p>
+          <div class="chips"><span>Iceberg</span><span>dbt</span><span>Airbyte</span><span>Airflow</span></div>
+        </div>
+      </li>
+      <li>
+        <span class="co">WaveBL · Cellebrite · Loora</span>
+        <div class="body">
+          <h3>ARR models, three times over</h3>
+          <p>Built each company’s ARR model end to end, working directly with the CEO, CFO and Finance on definitions of ARR, GRR, NRR and churn.</p>
+          <div class="chips"><span>ARR</span><span>GRR / NRR</span><span>Finance data</span></div>
+        </div>
+      </li>
+      <li>
+        <span class="co">Customer success</span>
+        <div class="body">
+          <h3>Customer Health Score</h3>
+          <p>A customer health score that gives CS teams an early view of which accounts need attention. I talked about how it was built on a podcast.</p>
+          <a class="listen" href="https://www.youtube.com/watch?v=sD3fxHW1ImE" target="_blank" rel="noopener">Listen to the podcast ↗</a>
+        </div>
+      </li>
+      <li>
+        <span class="co">Loora</span>
+        <div class="body">
+          <h3>Marketing data warehouse</h3>
+          <p>Ad spend, attribution and billing joined in one model, so ROAS, CAC and LTV come from a single source the marketing team can trust.</p>
+          <div class="chips"><span>ROAS</span><span>CAC</span><span>LTV</span></div>
+        </div>
+      </li>
+    </ul>
+  </section>
+
+  <section id="ways">
+    <div class="sec-head">
+      <p class="eyebrow">Ways to work together</p>
+      <h2>Pick the shape that fits your team.</h2>
+    </div>
+    <div class="ways">
+      <div class="way">
+        <span class="fit">Ongoing · monthly</span>
+        <h3>Fractional data lead</h3>
+        <p>I own your data stack part time: pipelines, models, metrics and the requests that come with them. Good for teams without a senior data engineer.</p>
+      </div>
+      <div class="way">
+        <span class="fit">Project · fixed scope</span>
+        <h3>Platform build</h3>
+        <p>A new Snowflake + dbt platform, or a cleanup of one that grew messy. You get a working, documented system your team can run.</p>
+      </div>
+      <div class="way">
+        <span class="fit">Project · focused</span>
+        <h3>Semantic layer & AI agents</h3>
+        <p>Define your core metrics in Semantic Views and put a Cortex or ChatGPT-connected agent on top, so people get answers without writing SQL.</p>
+      </div>
+      <div class="way">
+        <span class="fit">Short · a few sessions</span>
+        <h3>Review & advisory</h3>
+        <p>A second opinion on your architecture, dbt project, Snowflake cost or ARR logic, with a clear list of what to fix first.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="about">
+      <div class="sec-head" style="margin:0">
+        <p class="eyebrow">About</p>
+        <h2>Hi, I’m Amir.</h2>
+      </div>
+      <div class="text">
+        <p>I’ve spent more than ten years building data platforms, most recently as BI Data Engineer Lead at Loora and WaveBL, and before that at Lemonade and Cellebrite. I started out as a BI lecturer and consultant at Naya Technologies.</p>
+        <p>I work across the full data lifecycle. That means ingestion and pipelines, data modeling, metric definitions, semantic layers, dashboards, and AI agents on top.</p>
+      </div>
+    </div>
+  </section>
+</div>
+
+<div class="wrap">
+  <section class="contact" id="contact">
+    <div>
+      <img class="mark" src="logo-mark.png" alt="" width="64" height="64">
+      <p class="eyebrow" style="color:inherit;opacity:.6">Contact</p>
+      <h2 style="margin-top:10px">Let’s talk.</h2>
+      <p class="lede">Tell me what you’re working on and where the data hurts.</p>
+    </div>
+    <div class="clist">
+      <div class="citem">
+        <div><div class="k">Email</div><div class="v" id="email">vitman.amir@gmail.com</div></div>
+        <div class="acts"><button class="mini" type="button" data-copy="vitman.amir@gmail.com">Copy</button><a class="mini solid" href="mailto:vitman.amir@gmail.com">Email</a></div>
+      </div>
+      <div class="citem">
+        <div><div class="k">Phone</div><div class="v">054-326-4333</div></div>
+        <div class="acts"><button class="mini" type="button" data-copy="+972543264333">Copy</button><a class="mini solid" href="https://wa.me/972543264333" target="_blank" rel="noopener">WhatsApp</a></div>
+      </div>
+      <div class="citem">
+        <div><div class="k">LinkedIn</div><div class="v">linkedin.com/in/amir-vitman</div></div>
+        <div class="acts"><a class="mini solid" href="https://www.linkedin.com/in/amir-vitman" target="_blank" rel="noopener">Connect</a></div>
+      </div>
+    </div>
+  </section>
+  <footer><span>© 2026 SuperDataman · Amir Vitman</span><a href="#top">Back to top ↑</a></footer>
+</div>
+
+<script>
+document.querySelectorAll('[data-copy]').forEach(function(b){
+  b.addEventListener('click',function(){
+    var t=b.getAttribute('data-copy'), orig=b.textContent;
+    var done=function(){b.textContent='Copied';setTimeout(function(){b.textContent=orig},1400)};
+    try{navigator.clipboard.writeText(t).then(done,function(){sel(b)})}catch(e){sel(b)}
+  });
+});
+function sel(b){var v=b.closest('.citem').querySelector('.v');var r=document.createRange();r.selectNodeContents(v);var s=getSelection();s.removeAllRanges();s.addRange(r);}
+</script>
+
+</body>
+</html>

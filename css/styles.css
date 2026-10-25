@@ -74,6 +74,11 @@ nav .btn{padding:11px 18px;font-size:15px}
 .marquee:hover .track,.marquee:focus-within .track{animation-play-state:paused}
 .set{display:flex;gap:12px;padding-right:12px}
 @keyframes marquee{to{transform:translateX(-50%)}}
+/* with JS, the strip is driven by script so it can be dragged; pan-y keeps vertical page scrolling on touch */
+.marquee.draggable{touch-action:pan-y;cursor:grab;user-select:none;-webkit-user-select:none}
+.marquee.draggable.dragging{cursor:grabbing}
+.marquee.draggable .track{animation:none;will-change:transform}
+.marquee.draggable img{-webkit-user-drag:none;pointer-events:none}
 .logo-cell{flex:none;width:150px;height:84px;display:grid;place-items:center;background:var(--logo-cell);border:1px solid var(--line);border-radius:14px;padding:14px}
 .logo-cell{text-decoration:none;transition:border-color .2s}
 .logo-cell:hover{border-color:var(--accent)}

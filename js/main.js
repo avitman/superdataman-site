@@ -1,6 +1,58 @@
 var bar=document.getElementById('topbar');
 addEventListener('scroll',function(){bar.classList.toggle('scrolled',scrollY>8)},{passive:true});
 
+// Logo strip: scrolls on its own, and can be held and dragged left or right (touch or mouse).
+// Without JS, or with reduced motion, the CSS version in styles.css is used instead.
+(function(){
+  var mq=document.querySelector('.marquee'), track=mq&&mq.querySelector('.track');
+  if(!track||matchMedia('(prefers-reduced-motion: reduce)').matches)return;
+  mq.classList.add('draggable');
+  var x=0, vel=0, half=0, speed=0, last=0, hover=false;
+  var drag=null; // {id, startX, startOff, lastX, lastT, moved}
+  function measure(){half=track.scrollWidth/2; speed=half/38000} // same pace as the CSS version: half the track per 38s
+  measure(); addEventListener('resize',measure);
+  function frame(t){
+    var dt=last?Math.min(t-last,50):16; last=t;
+    if(!drag){
+      x+=vel*dt; vel*=Math.pow(.94,dt/16); // momentum after a swipe, easing out
+      if(Math.abs(vel)<.01){vel=0; if(!hover)x-=speed*dt}
+    }
+    if(half){x%=half; if(x>0)x-=half}
+    track.style.transform='translate3d('+x+'px,0,0)';
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+  mq.addEventListener('pointerenter',function(e){if(e.pointerType==='mouse')hover=true});
+  mq.addEventListener('pointerleave',function(e){if(e.pointerType==='mouse')hover=false});
+  mq.addEventListener('pointerdown',function(e){
+    if(e.button>0)return;
+    drag={id:e.pointerId,startX:e.clientX,startOff:x,lastX:e.clientX,lastT:e.timeStamp,moved:false}; vel=0;
+  });
+  mq.addEventListener('pointermove',function(e){
+    if(!drag||e.pointerId!==drag.id)return;
+    var dx=e.clientX-drag.startX;
+    if(!drag.moved&&Math.abs(dx)>6){drag.moved=true; mq.classList.add('dragging'); try{mq.setPointerCapture(e.pointerId)}catch(_){}}
+    if(drag.moved){
+      x=drag.startOff+dx;
+      var dt=e.timeStamp-drag.lastT; if(dt>0)vel=(e.clientX-drag.lastX)/dt;
+      drag.lastX=e.clientX; drag.lastT=e.timeStamp;
+    }
+  });
+  function end(e){
+    if(!drag||e.pointerId!==drag.id)return;
+    if(drag.moved){
+      if(e.timeStamp-drag.lastT>80)vel=0; // held still before letting go: no fling
+      vel=Math.max(-3,Math.min(3,vel));
+      mq.dataset.justDragged='1'; setTimeout(function(){delete mq.dataset.justDragged},0);
+    }else vel=0;
+    mq.classList.remove('dragging'); drag=null;
+  }
+  mq.addEventListener('pointerup',end);
+  mq.addEventListener('pointercancel',function(e){if(drag&&e.pointerId===drag.id){mq.classList.remove('dragging');drag=null}});
+  // a drag shouldn't count as a tap on the logo underneath
+  mq.addEventListener('click',function(e){if(mq.dataset.justDragged)e.preventDefault()},true);
+})();
+
 // Lead form, sent through Web3Forms. Paste the access key from web3forms.com here;
 // until then it falls back to opening an email with the details filled in.
 var WEB3FORMS_KEY='802ba8cb-c5ca-4d30-92df-c977ed3617e7';
